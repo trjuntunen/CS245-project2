@@ -1,6 +1,7 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class Configuration {
 
@@ -12,16 +13,11 @@ public class Configuration {
     }
 
     private void readConfig(String configPath) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(configPath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] values = line.split("=");
-                if (values[0].equals("ListType")) {
-                    listType = values[1];
-                } else if (values[0].equals("Directory")) {
-                    directory = values[1];
-                }
-            }
+        try (InputStream input = new FileInputStream(configPath)) {
+            Properties properties = new Properties();
+            properties.load(input);
+            listType = properties.getProperty("ListType");
+            directory = properties.getProperty("Directory");
         } catch (IOException e) {
             e.printStackTrace();
         }
