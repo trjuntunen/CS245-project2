@@ -1,10 +1,9 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
@@ -12,26 +11,44 @@ import java.util.stream.Stream;
 /*
  * TO-DO:
  * Show appropriate messages for when no one shows up with that name.
- * Validate each user input
+ * Validate each user inputs
  * implement own arraylist
  * implement own linkedlist
  * add support for linkedlist
  * deal with only reading .txt files?
+ * do we have to deal with improperly formatted data?
+ * do we have to validate that input path is valid format
  */
 public class AgePrediction {
 
     private final ArrayList<Person> people;
-    private final Configuration config;
+    private String listType;
+    private String directory;
 
     public AgePrediction(String configPath) {
         people = new ArrayList<>();
-        this.config = new Configuration(configPath);
+        setConfig(configPath);
     }
 
-    // this would be private right?
+    public void start() {
+        fillListWithData();
+        while (true) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Name of the person (or EXIT to quit): ");
+            String name = scanner.nextLine();
+            System.out.println("Gender (M/F): ");
+            String gender = scanner.nextLine();
+            System.out.println("State of birth (two-letter state code): ");
+            String state = scanner.nextLine();
+            ArrayList<Person> filteredPeople = filterPeople(name, gender, state);
+            Person matchingPerson = findMostPopularYearForName(filteredPeople);
+            printResult(matchingPerson);
+        }
+    }
+
     private void fillListWithData() {
         // loop through each file in given directory in config file
-        try (Stream<Path> paths = Files.walk(Paths.get(config.getDirectory()))) {
+        try (Stream<Path> paths = Files.walk(Paths.get(directory))) {
             paths.filter(Files::isRegularFile)
                     .forEach(this::readDataFile);
         } catch (IOException e) {
@@ -44,12 +61,13 @@ public class AgePrediction {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split(",");
-                if (values.length == 5) {
-//                    for(String v:values) {
-//                        System.out.print(v + " ");
-//                    }
-//                    System.out.println();
-                    Person person = new Person(values[3], values[1], values[0], Integer.parseInt(values[2]),  Integer.parseInt(values[4]));
+                if (values.length == 5) { // 5 values in each line in data file
+                    String name = values[3];
+                    String gender = values[1];
+                    String state = values[0];
+                    int year = Integer.parseInt(values[2]);
+                    int nameCount = Integer.parseInt(values[4]);
+                    Person person = new Person(name, gender, state, year, nameCount);
                     people.add(person);
                 }
             }
@@ -58,45 +76,47 @@ public class AgePrediction {
         }
     }
 
-    public Person get(int index) {
-        return people.get(index);
+    private ArrayList<Person> filterPeople(String name, String gender, String state) {
+        ArrayList<Person> filteredPeople = new ArrayList<>();
+        for (Person person : people) {
+            if (person.getName().equalsIgnoreCase(name) && person.getGender().equalsIgnoreCase(gender) && person.getState().equalsIgnoreCase(state)) {
+                filteredPeople.add(person);
+            }
+        }
+        return filteredPeople;
     }
 
-    public void start() {
-        fillListWithData();
-        while(true) {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Name of the person (or EXIT to quit): ");
-            String name = scanner.nextLine();
-            System.out.println("Gender (M/F): ");
-            String gender = scanner.nextLine();
-            System.out.println("State of birth (two-letter state code): ");
-            String state = scanner.nextLine();
-
-            ArrayList<Person> queriedPeople = new ArrayList<>();
-            for(Person p: people) {
-                if(p.getState().equalsIgnoreCase(state) && p.getName().equalsIgnoreCase(name) && p.getGender().equalsIgnoreCase(gender)) {
-                    queriedPeople.add(p);
-                }
-            }
-            Person maxPerson = null;
-//            for(Person p:queriedPeople) {
-//                System.out.println(p);
-//            }
-            for(Person p: queriedPeople) {
-                if(maxPerson == null) {
-                    maxPerson = p;
-                } else {
-                    if(p.getNameCount() > maxPerson.getNameCount()) {
-                        maxPerson = p;
-                    }
-                }
-            }
-            if(maxPerson != null) {
-                System.out.println(maxPerson.getName() + " born in " + maxPerson.getState() + " is most likely around " + maxPerson.getAge() + " years old.");
+    private Person findMostPopularYearForName(ArrayList<Person> filteredPeople) {
+        Person personWithHighestCount = null;
+        for (Person person : filteredPeople) {
+            if (personWithHighestCount == null) {
+                personWithHighestCount = person;
             } else {
-                System.out.println("No person found with those inputs.");
+                if (person.getNameCount() > personWithHighestCount.getNameCount()) {
+                    personWithHighestCount = person;
+                }
             }
+        }
+        return personWithHighestCount;
+    }
+
+    private void printResult(Person person) {
+        if (person != null) {
+            String yearsPluralOrSingular = (person.getAge() == 1) ? "year" : "years";
+            System.out.println(person.getName() + " born in " + person.getState() + " is most likely around " + person.getAge() + " " + yearsPluralOrSingular + " old.");
+        } else {
+            System.out.println("No person found with those inputs.");
+        }
+    }
+
+    private void setConfig(String configPath) {
+        try (InputStream input = new FileInputStream(configPath)) {
+            Properties properties = new Properties();
+            properties.load(input);
+            listType = properties.getProperty("ListType");
+            directory = properties.getProperty("Directory");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -107,8 +127,8 @@ public class AgePrediction {
             System.exit(1);
         }
         String configPath = args[0];
-        AgePrediction agePredict = new AgePrediction(configPath);
-        agePredict.start();
+        AgePrediction agePrediction = new AgePrediction(configPath);
+        agePrediction.start();
     }
 
 }
