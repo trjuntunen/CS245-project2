@@ -2,22 +2,21 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.stream.Stream;
-
 
 /*
  * TO-DO:
  * Show appropriate messages for when no one shows up with that name.
  * Validate each user inputs
- * implement own arraylist
  * implement own linkedlist
  * add support for linkedlist
  * deal with only reading .txt files?
  * do we have to deal with improperly formatted data?
  * do we have to validate that input path is valid format
+ * ask about implementing methods in arraylist from list<t>
+ * ask about surrounding things with try catch blocks
  */
 public class AgePrediction {
 
@@ -36,6 +35,11 @@ public class AgePrediction {
             Scanner scanner = new Scanner(System.in);
             System.out.println("Name of the person (or EXIT to quit): ");
             String name = scanner.nextLine();
+
+            if(name.equalsIgnoreCase("exit")) {
+                System.exit(0);
+            }
+
             System.out.println("Gender (M/F): ");
             String gender = scanner.nextLine();
             System.out.println("State of birth (two-letter state code): ");
@@ -71,16 +75,21 @@ public class AgePrediction {
                     people.add(person);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private ArrayList<Person> filterPeople(String name, String gender, String state) {
         ArrayList<Person> filteredPeople = new ArrayList<>();
-        for (Person person : people) {
-            if (person.getName().equalsIgnoreCase(name) && person.getGender().equalsIgnoreCase(gender) && person.getState().equalsIgnoreCase(state)) {
-                filteredPeople.add(person);
+        for(int i = 0; i < people.size(); i++) {
+            try {
+                Person person = people.get(i);
+                if (person.getName().equalsIgnoreCase(name) && person.getGender().equalsIgnoreCase(gender) && person.getState().equalsIgnoreCase(state)) {
+                    filteredPeople.add(person);
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
             }
         }
         return filteredPeople;
@@ -88,13 +97,18 @@ public class AgePrediction {
 
     private Person findMostPopularYearForName(ArrayList<Person> filteredPeople) {
         Person personWithHighestCount = null;
-        for (Person person : filteredPeople) {
-            if (personWithHighestCount == null) {
-                personWithHighestCount = person;
-            } else {
-                if (person.getNameCount() > personWithHighestCount.getNameCount()) {
+        for(int i = 0; i < filteredPeople.size(); i++) {
+            try {
+                Person person = filteredPeople.get(i);
+                if (personWithHighestCount == null) {
                     personWithHighestCount = person;
+                } else {
+                    if (person.getNameCount() > personWithHighestCount.getNameCount()) {
+                        personWithHighestCount = person;
+                    }
                 }
+            } catch(Exception e) {
+                e.printStackTrace();
             }
         }
         return personWithHighestCount;
@@ -129,6 +143,7 @@ public class AgePrediction {
         String configPath = args[0];
         AgePrediction agePrediction = new AgePrediction(configPath);
         agePrediction.start();
+
     }
 
 }
