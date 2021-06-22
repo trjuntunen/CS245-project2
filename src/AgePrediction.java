@@ -8,6 +8,16 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
+
+/*
+ * TO-DO:
+ * Show appropriate messages for when no one shows up with that name.
+ * Validate each user input
+ * implement own arraylist
+ * implement own linkedlist
+ * add support for linkedlist
+ * deal with only reading .txt files?
+ */
 public class AgePrediction {
 
     private final ArrayList<Person> people;
@@ -65,20 +75,28 @@ public class AgePrediction {
 
             ArrayList<Person> queriedPeople = new ArrayList<>();
             for(Person p: people) {
-                if(p.getState().equals(state) && p.getName().equals(name) && p.getGender().equals(gender)) {
+                if(p.getState().equalsIgnoreCase(state) && p.getName().equalsIgnoreCase(name) && p.getGender().equalsIgnoreCase(gender)) {
                     queriedPeople.add(p);
                 }
             }
-            Person maxPerson = new Person();
+            Person maxPerson = null;
 //            for(Person p:queriedPeople) {
 //                System.out.println(p);
 //            }
             for(Person p: queriedPeople) {
-                if(p.getNameCount() > maxPerson.getNameCount()) {
+                if(maxPerson == null) {
                     maxPerson = p;
+                } else {
+                    if(p.getNameCount() > maxPerson.getNameCount()) {
+                        maxPerson = p;
+                    }
                 }
             }
-            System.out.println(maxPerson.getName() + " born in " + maxPerson.getState() + " is most likely around " + maxPerson.getAge() + " years old.");
+            if(maxPerson != null) {
+                System.out.println(maxPerson.getName() + " born in " + maxPerson.getState() + " is most likely around " + maxPerson.getAge() + " years old.");
+            } else {
+                System.out.println("No person found with those inputs.");
+            }
         }
     }
 

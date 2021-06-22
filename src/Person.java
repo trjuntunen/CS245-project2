@@ -16,14 +16,6 @@ public class Person {
         this.nameCount = nameCount;
     }
 
-    public Person() {
-        this.name = "";
-        this.gender = "";
-        this.state = "";
-        this.year = -1;
-        this.nameCount = -1;
-    }
-
     public String getName() {
         return name;
     }
