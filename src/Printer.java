@@ -1,6 +1,6 @@
 import java.util.HashMap;
 import java.util.Scanner;
-
+// i think this printer class is stupid
 public class Printer {
 
     private final Scanner scanner;
