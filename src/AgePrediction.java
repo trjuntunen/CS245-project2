@@ -15,6 +15,7 @@ import java.util.stream.Stream;
  * do we have to deal with improperly formatted data?
  * do we have to validate that input path is valid format
  * ask about surrounding things with try catch blocks
+ * ask about skipping file unable to read with catch that has nothing in it
  */
 public class AgePrediction {
 
@@ -41,7 +42,7 @@ public class AgePrediction {
 
     private void buildListOfPeople() {
         /* Find all files in directory and read them all */
-        try (Stream<Path> paths = Files.walk(Paths.get(config.getDirectory()))) {
+        try (Stream<Path> paths = Files.walk(Paths.get("data"))) {
             paths.filter(Files::isRegularFile)
                     .forEach(this::readDataFile);
         } catch (IOException e) {
@@ -54,14 +55,23 @@ public class AgePrediction {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split(",");
-                if (values.length == 5) { // 5 values in each line in data file
-                    /* Create a new Person with the values in each line [name, gender, state, year, nameCount] */
-                    Person person = new Person(values[3], values[1], values[0], Integer.parseInt(values[2]), Integer.parseInt(values[4]));
-                    people.add(person);
-                }
+                createAndAddPerson(values);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void createAndAddPerson(String[] line) throws Exception {
+        if (line.length == 5) { // 5 values in each line in data file
+            /* Create a new Person with the values in each line [name, gender, state, year, nameCount] */
+            try {
+                Person person = new Person(line[3], line[1], line[0], Integer.parseInt(line[2]), Integer.parseInt(line[4]));
+                people.add(person);
+            } catch(Exception e) {
+                // skip file that was unable to read
+            }
+
         }
     }
 
