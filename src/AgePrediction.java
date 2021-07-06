@@ -1,117 +1,127 @@
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 /*
- * TO-DO:
- * Validate each user inputs
+ * TODO:
  * implement own linkedlist
- * add support for linkedlist
- * deal with only reading .txt files?
  * do we have to deal with improperly formatted data?
  * do we have to validate that input path is valid format
- * ask about surrounding things with try catch blocks
- * ask about skipping file unable to read with catch that has nothing in it
  */
 public class AgePrediction {
 
-    private ArrayList<Person> people;
-    private final Printer printer;
-    private final Configuration config;
+	private ArrayList<NameRecord> records;
+	private Configuration config;
 
-    public AgePrediction(String configPath) {
-        people = new ArrayList<>();
-        config = new Configuration(configPath);
-        buildListOfPeople(); // Build the entire list of people from the data in the data files
-        this.printer = new Printer();
-    }
+	public AgePrediction(Path configFile) {
+		records = new ArrayList<>();
+		config = new Configuration(configFile);
+	}
 
-    public void start() {
-        while (true) {
-            /* Ask user all of the questions */
-            HashMap<String, String> userInput = printer.printMenuAndGetUserInput();
-            /* Find the most likely person based on the data and inputs */
-            ArrayList<Person> mostLikelyPeople = findMostLikelyPeople(userInput);
-            printer.printResult(mostLikelyPeople);
-        }
-    }
+	public void start() {
+		// Build the database of records from the data files
+		buildListOfRecords();
+		
+		while (true) {
+			// Ask user all of the required questions
+			UserInput input = new UserInput();
+			input.askUserQuestions();
+			
+			// Find the most likely person based on the user inputs
+			ArrayList<NameRecord> mostLikelyPeople = findMostLikelyPeople(input);
+			printResults(mostLikelyPeople);
+		}
+	}
 
-    private void buildListOfPeople() {
-        /* Find all files in directory and read them all */
-        try (Stream<Path> paths = Files.walk(Paths.get("data"))) {
-            paths.filter(Files::isRegularFile)
-                    .forEach(this::readDataFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+	private void buildListOfRecords() {
+		// Walk through all directories and read all files within
+		try (Stream<Path> paths = Files.walk(config.getDirectory())) {
+			paths.filter(Files::isRegularFile).forEach(this::readDataFile);
+		} catch (IOException e) {
+			System.out.println("Error: Unable to access the data files.");
+			System.exit(1);
+		}
+	}
 
-    private void readDataFile(Path file) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file.toFile().getAbsolutePath()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] values = line.split(",");
-                createAndAddPerson(values);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	private void readDataFile(Path file) {
+		if (file.toString().toLowerCase().endsWith(".txt")) {
+			try (BufferedReader reader = new BufferedReader(new FileReader(file.toAbsolutePath().toString()))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					String[] values = line.split(",");
+					// Each line: [name, gender, state, year, nameCount]
+					if (values.length == 5) {
+						String name = values[3];
+						String gender = values[1];
+						String state = values[0];
+						int year = Integer.parseInt(values[2]);
+						int nameCount = Integer.parseInt(values[4]);
+						// Create new record and add to list
+						NameRecord record = new NameRecord(name, gender, state, year, nameCount);
+						records.add(record);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
-    private void createAndAddPerson(String[] line) throws Exception {
-        if (line.length == 5) { // 5 values in each line in data file
-            /* Create a new Person with the values in each line [name, gender, state, year, nameCount] */
-            try {
-                Person person = new Person(line[3], line[1], line[0], Integer.parseInt(line[2]), Integer.parseInt(line[4]));
-                people.add(person);
-            } catch(Exception e) {
-                // skip file that was unable to read
-            }
+	private ArrayList<NameRecord> findMostLikelyPeople(UserInput input) {
+		ArrayList<NameRecord> mostLikelyPeople = new ArrayList<>();
+		try {
+			ArrayList<NameRecord> filteredPeople = new ArrayList<>();
+			int maxNameCount = 0;
+			for (int i = 0; i < records.size(); i++) {
+				NameRecord record = records.get(i);
+				if (record.getName().equalsIgnoreCase(input.getName()) && record.getGender().equalsIgnoreCase(input.getGender())
+						&& record.getState().equalsIgnoreCase(input.getState())) {
+					filteredPeople.add(record);
+					if (record.getNameCount() > maxNameCount) {
+						maxNameCount = record.getNameCount();
+					}
+				}
+			}
+			for (int i = 0; i < filteredPeople.size(); i++) {
+				NameRecord record = filteredPeople.get(i);
+				if (record.getNameCount() == maxNameCount) {
+					mostLikelyPeople.add(record);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mostLikelyPeople;
+	}
 
-        }
-    }
+	// this function will change to just create a range of ages
+	public void printResults(ArrayList<NameRecord> records) {
+		try {
+			if (records.size() <= 0) {
+				System.out.println("No person found with those inputs.");
+			} else if (records.size() == 1) {
+				System.out.println(records.get(0));
+			} else {
+				// find lowest num, and return a range
+				for (int i = 0; i < records.size(); i++) {
+					System.out.println(records.get(i));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-    private ArrayList<Person> findMostLikelyPeople(Map<String, String> userInput) {
-        ArrayList<Person> mostLikelyPeople = new ArrayList<>();
-        try {
-            ArrayList<Person> filteredPeople = new ArrayList<>();
-            int maxNameCount = 0;
-            for (int i = 0; i < people.size(); i++) {
-                Person person = people.get(i);
-                if (person.getName().equalsIgnoreCase(userInput.get("name"))
-                        && person.getGender().equalsIgnoreCase(userInput.get("gender"))
-                        && person.getState().equalsIgnoreCase(userInput.get("state"))) {
-                    filteredPeople.add(person);
-                    if (person.getNameCount() > maxNameCount) {
-                        maxNameCount = person.getNameCount();
-                    }
-                }
-            }
-            for (int i = 0; i < filteredPeople.size(); i++) {
-                Person person = filteredPeople.get(i);
-                if (person.getNameCount() == maxNameCount) {
-                    mostLikelyPeople.add(person);
-                }
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return mostLikelyPeople;
-    }
-
-    public static void main(String[] args) {
-        /* Validate input args */
-        if (args.length != 1) {
-            System.out.println("Invalid input. Usage... [TODO enter usage] ");
-            System.exit(1);
-        }
-        String configPath = args[0];
-        AgePrediction agePrediction = new AgePrediction(configPath);
-        agePrediction.start();
-    }
+	public static void main(String[] args) {
+		/* Validate input args */
+		if (args.length != 1) {
+			System.out.println("Invalid input. Usage... [TODO enter usage] ");
+			System.exit(1);
+		}
+		Path dataPath = Path.of(args[0]);
+		AgePrediction agePrediction = new AgePrediction(dataPath);
+		agePrediction.start();
+	}
 
 }

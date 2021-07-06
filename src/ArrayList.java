@@ -4,13 +4,15 @@ public class ArrayList<T> implements List<T> {
     T[] arr;
     int size;
 
-    public ArrayList() {
+    @SuppressWarnings("unchecked")
+	public ArrayList() {
         size = 0;
         arr = (T[]) new Object[10];
     }
 
     private void growArray() {
-        T[] newArr = (T[]) new Object[arr.length * 2];
+        @SuppressWarnings("unchecked")
+		T[] newArr = (T[]) new Object[arr.length * 2];
         System.arraycopy(arr, 0, newArr, 0, arr.length);
         arr = newArr;
     }

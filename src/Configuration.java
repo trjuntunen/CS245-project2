@@ -1,25 +1,26 @@
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class Configuration {
-
+	
     private String listType;
-    private String directory;
+    private Path directory;
 
-    public Configuration(String configPath) {
-        setConfig(configPath);
+    public Configuration(Path configFile) {
+        setConfig(configFile);
     }
 
-    public void setConfig(String configPath) {
-        try (InputStream input = new FileInputStream(configPath)) {
+    private void setConfig(Path configFile) {
+        try (InputStream input = new FileInputStream(configFile.toString())) {
             Properties properties = new Properties();
             properties.load(input);
             listType = properties.getProperty("ListType");
-            directory = properties.getProperty("Directory");
-        } catch (IOException e) {
-            e.printStackTrace();
+            directory = Path.of(properties.getProperty("Directory"));
+        } catch (Exception e) {
+        	System.out.println("Error: There is a problem with the config file given.");
+            System.exit(1);
         }
     }
 
@@ -27,7 +28,7 @@ public class Configuration {
         return listType;
     }
 
-    public String getDirectory() {
+    public Path getDirectory() {
         return directory;
     }
 

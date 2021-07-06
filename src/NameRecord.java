@@ -1,6 +1,6 @@
 import java.util.Calendar;
 
-public class Person {
+public class NameRecord {
 
     private final String name;
     private final String gender;
@@ -8,7 +8,7 @@ public class Person {
     private final int year;
     private final int nameCount;
 
-    public Person(String name, String gender, String state, int year, int nameCount) {
+    public NameRecord(String name, String gender, String state, int year, int nameCount) {
         this.name = name;
         this.gender = gender;
         this.state = state;
@@ -32,16 +32,17 @@ public class Person {
         return year;
     }
 
-    public int getAge() {
+    public int getNameCount() {
+        return nameCount;
+    }
+    
+    private int calculateAge() {
         int year = Calendar.getInstance().get(Calendar.YEAR);
         return year - getYear();
     }
 
-    public int getNameCount() {
-        return nameCount;
-    }
-
     public String toString() {
-        return name + " " + gender + " " + state + " " + year + " " + nameCount;
+        return name + " born in " + state + " is most likely around "
+				+ calculateAge() + " years" + " old.";
     }
 }
