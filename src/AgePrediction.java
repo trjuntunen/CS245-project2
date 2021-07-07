@@ -110,21 +110,35 @@ public class AgePrediction {
 	}
 
 	// this function will change to just create a range of ages
-	public void printResults(ArrayList<NameRecord> records) {
+	public void printResults(ArrayList<NameRecord> results) {
 		try {
-			if (records.size() <= 0) {
-				System.out.println("No person found with those inputs.");
-			} else if (records.size() == 1) {
-				System.out.println(records.get(0));
+			if (results.size() <= 0) {
+				System.out.println("No person found matching that name");
+			} else if (results.size() == 1) {
+				System.out.println(results.get(0));
 			} else {
-				// find lowest num, and return a range
-				for (int i = 0; i < records.size(); i++) {
-					System.out.println(records.get(i));
-				}
+				// find lowest age and highest age, and return a range between the two
+				printAgeRange(results);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void printAgeRange(ArrayList<NameRecord> records) {
+		NameRecord firstRec = records.get(0);
+		int max = firstRec.getAge();
+		int min = firstRec.getAge();
+		for(int i = 0; i < records.size(); i++) {
+			NameRecord record = records.get(i);
+			if(record.getAge() < min) {
+				min = record.getAge();
+			}
+			if(record.getAge() > max) {
+				max = record.getAge();
+			}
+		}
+		System.out.println(firstRec.getName() + " born in " + firstRec.getState() + " is most likely around " + min + " to " + max + " years old.");
 	}
 
 	public static void main(String[] args) {

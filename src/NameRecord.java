@@ -36,12 +36,12 @@ public class NameRecord {
 		return nameCount;
 	}
 
-	private int calculateAge() {
+	public int getAge() {
 		int year = Calendar.getInstance().get(Calendar.YEAR);
 		return year - getYear();
 	}
 
 	public String toString() {
-		return name + " born in " + state + " is most likely around " + calculateAge() + " years" + " old.";
+		return name + " born in " + state + " is most likely around " + getAge() + " years" + " old.";
 	}
 }

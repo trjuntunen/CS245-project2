@@ -32,7 +32,10 @@ public class UserInput {
 			name = scanner.nextLine();
 		}
 		this.name = name.trim();
-		checkForExit(this.name);
+		// typing "exit" exits the program
+		if (this.name.equalsIgnoreCase("exit")) {
+			System.exit(0);
+		}
 	}
 
 	private void getGenderFromUser() {
@@ -68,12 +71,6 @@ public class UserInput {
 			}
 		}
 		return false;
-	}
-
-	private void checkForExit(String input) {
-		if (input.equalsIgnoreCase("exit")) {
-			System.exit(0);
-		}
 	}
 
 	public String getName() {
