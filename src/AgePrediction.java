@@ -2,12 +2,17 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
+import java.util.ArrayList;
 
 /*
- * TODO:
+ * TODO:ch
  * implement own linkedlist
  * do we have to deal with improperly formatted data?
  * do we have to validate that input path is valid format
+ * 
+ * If theconfiguration file is not provided or is missingor
+ *  if any ofthe key-value pairs is improperly specified, yourimplementation
+ *   must exit, gracefully, with a messageindicating the reason for early termination.
  */
 public class AgePrediction {
 
@@ -22,15 +27,15 @@ public class AgePrediction {
 	public void start() {
 		// Build the database of records from the data files
 		buildListOfRecords();
-		
+
 		while (true) {
 			// Ask user all of the required questions
 			UserInput input = new UserInput();
 			input.askUserQuestions();
-			
+
 			// Find the most likely person based on the user inputs
-			ArrayList<NameRecord> mostLikelyPeople = findMostLikelyPeople(input);
-			printResults(mostLikelyPeople);
+			ArrayList<NameRecord> results = findResults(input);
+			printResults(results);
 		}
 	}
 
@@ -46,9 +51,11 @@ public class AgePrediction {
 
 	private void readDataFile(Path file) {
 		if (file.toString().toLowerCase().endsWith(".txt")) {
-			try (BufferedReader reader = new BufferedReader(new FileReader(file.toAbsolutePath().toString()))) {
+			try {
+				FileReader fr = new FileReader(file.toAbsolutePath().toString());
+				BufferedReader br = new BufferedReader(fr);
 				String line;
-				while ((line = reader.readLine()) != null) {
+				while ((line = br.readLine()) != null) {
 					String[] values = line.split(",");
 					// Each line: [name, gender, state, year, nameCount]
 					if (values.length == 5) {
@@ -62,37 +69,44 @@ public class AgePrediction {
 						records.add(record);
 					}
 				}
+				br.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	private ArrayList<NameRecord> findMostLikelyPeople(UserInput input) {
-		ArrayList<NameRecord> mostLikelyPeople = new ArrayList<>();
+	private ArrayList<NameRecord> findResults(UserInput input) {
+		ArrayList<NameRecord> results = new ArrayList<>();
 		try {
-			ArrayList<NameRecord> filteredPeople = new ArrayList<>();
+			ArrayList<NameRecord> recordsMatchingInput = new ArrayList<>();
 			int maxNameCount = 0;
 			for (int i = 0; i < records.size(); i++) {
 				NameRecord record = records.get(i);
-				if (record.getName().equalsIgnoreCase(input.getName()) && record.getGender().equalsIgnoreCase(input.getGender())
+				// Check if record matches all the user inputs
+				if (record.getName().equalsIgnoreCase(input.getName())
+						&& record.getGender().equalsIgnoreCase(input.getGender())
 						&& record.getState().equalsIgnoreCase(input.getState())) {
-					filteredPeople.add(record);
+
+					// Add to matching names list
+					recordsMatchingInput.add(record);
+					// Find the max name count out of all the matching records
 					if (record.getNameCount() > maxNameCount) {
 						maxNameCount = record.getNameCount();
 					}
 				}
 			}
-			for (int i = 0; i < filteredPeople.size(); i++) {
-				NameRecord record = filteredPeople.get(i);
+			// Find all records that match maxNameCount and add to results
+			for (int i = 0; i < recordsMatchingInput.size(); i++) {
+				NameRecord record = recordsMatchingInput.get(i);
 				if (record.getNameCount() == maxNameCount) {
-					mostLikelyPeople.add(record);
+					results.add(record);
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return mostLikelyPeople;
+		return results;
 	}
 
 	// this function will change to just create a range of ages

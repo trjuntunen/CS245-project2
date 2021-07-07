@@ -4,32 +4,32 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 public class Configuration {
-	
-    private String listType;
-    private Path directory;
 
-    public Configuration(Path configFile) {
-        setConfig(configFile);
-    }
+	private String listType;
+	private Path directory;
 
-    private void setConfig(Path configFile) {
-        try (InputStream input = new FileInputStream(configFile.toString())) {
-            Properties properties = new Properties();
-            properties.load(input);
-            listType = properties.getProperty("ListType");
-            directory = Path.of(properties.getProperty("Directory"));
-        } catch (Exception e) {
-        	System.out.println("Error: There is a problem with the config file given.");
-            System.exit(1);
-        }
-    }
+	public Configuration(Path configFile) {
+		setConfig(configFile);
+	}
 
-    public String getListType() {
-        return listType;
-    }
+	private void setConfig(Path configFile) {
+		try (InputStream input = new FileInputStream(configFile.toString())) {
+			Properties properties = new Properties();
+			properties.load(input);
+			listType = properties.getProperty("ListType");
+			directory = Path.of(properties.getProperty("Directory"));
+		} catch (Exception e) {
+			System.out.println("Error: There is a problem with the config file given.");
+			System.exit(1);
+		}
+	}
 
-    public Path getDirectory() {
-        return directory;
-    }
+	public String getListType() {
+		return listType;
+	}
+
+	public Path getDirectory() {
+		return directory;
+	}
 
 }

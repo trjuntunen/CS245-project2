@@ -52,4 +52,5 @@ public class ArrayList<T> implements List<T> {
     public int size() {
         return size;
     }
+
 }
