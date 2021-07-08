@@ -1,7 +1,7 @@
 public class ArrayList<T> implements List<T> {
 
-	T[] arr;
-	int size;
+	private T[] arr;
+	private int size;
 
 	@SuppressWarnings("unchecked")
 	public ArrayList() {
