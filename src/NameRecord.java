@@ -36,6 +36,10 @@ public class NameRecord {
 		return nameCount;
 	}
 
+	/**
+	 * Return the difference in the current year
+	 * the record's year to calculate age.
+	 */
 	public int getAge() {
 		int year = Calendar.getInstance().get(Calendar.YEAR);
 		return year - getYear();

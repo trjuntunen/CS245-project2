@@ -3,6 +3,10 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Properties;
 
+/**
+ * Class to keep track of values in configuration file that is given
+ * as first argument.
+ */
 public class Configuration {
 
 	private String listType;
@@ -12,6 +16,9 @@ public class Configuration {
 		setConfig(configFile);
 	}
 
+	/**
+	 * Read the ListType and Directory properties of the configuration file.
+	 */
 	private void setConfig(Path configFile) {
 		try (InputStream input = new FileInputStream(configFile.toString())) {
 			Properties properties = new Properties();

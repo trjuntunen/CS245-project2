@@ -5,14 +5,12 @@ import java.util.stream.Stream;
 import java.util.ArrayList;
 
 /*
- * TODO:ch
+ * TODO:
  * implement own linkedlist
- * do we have to deal with improperly formatted data?
- * do we have to validate that input path is valid format
  * 
- * If theconfiguration file is not provided or is missingor
- *  if any ofthe key-value pairs is improperly specified, yourimplementation
- *   must exit, gracefully, with a messageindicating the reason for early termination.
+ * [Description]
+ * 
+ * Author: Teddy Juntunen
  */
 public class AgePrediction {
 
@@ -24,6 +22,10 @@ public class AgePrediction {
 		config = new Configuration(configFile);
 	}
 
+	/**
+	 * Build the list of records and then start the AgePrediction loop to predict
+	 * ages based on name, gender and state.
+	 */
 	public void start() {
 		// Build the database of records from the data files
 		buildListOfRecords();
@@ -35,10 +37,14 @@ public class AgePrediction {
 
 			// Find the most likely person based on the user inputs
 			ArrayList<NameRecord> results = findResults(input);
+
 			printResults(results);
 		}
 	}
 
+	/**
+	 * Read all data files within the directory in the given config file
+	 */
 	private void buildListOfRecords() {
 		// Walk through all directories and read all files within
 		try (Stream<Path> paths = Files.walk(config.getDirectory())) {
@@ -49,6 +55,9 @@ public class AgePrediction {
 		}
 	}
 
+	/**
+	 * Reads an individual data file and adds it to our master list of records
+	 */
 	private void readDataFile(Path file) {
 		if (file.toString().toLowerCase().endsWith(".txt")) {
 			try {
@@ -67,6 +76,7 @@ public class AgePrediction {
 						// Create new record and add to list
 						NameRecord record = new NameRecord(name, gender, state, year, nameCount);
 						records.add(record);
+
 					}
 				}
 				br.close();
@@ -76,6 +86,9 @@ public class AgePrediction {
 		}
 	}
 
+	/**
+	 * Finds the results of the most likely name given the user input
+	 */
 	private ArrayList<NameRecord> findResults(UserInput input) {
 		ArrayList<NameRecord> results = new ArrayList<>();
 		try {
@@ -109,7 +122,10 @@ public class AgePrediction {
 		return results;
 	}
 
-	// this function will change to just create a range of ages
+	/**
+	 * Depending on size of results, print the results or display "no match"
+	 * message.
+	 */
 	public void printResults(ArrayList<NameRecord> results) {
 		try {
 			if (results.size() <= 0) {
@@ -124,21 +140,26 @@ public class AgePrediction {
 			e.printStackTrace();
 		}
 	}
-	
+
+	/**
+	 * If the results size is more than 1, print an age range
+	 */
 	private void printAgeRange(ArrayList<NameRecord> records) {
+		// Use the first rec since they all have equal data members
 		NameRecord firstRec = records.get(0);
 		int max = firstRec.getAge();
 		int min = firstRec.getAge();
-		for(int i = 0; i < records.size(); i++) {
+		for (int i = 0; i < records.size(); i++) {
 			NameRecord record = records.get(i);
-			if(record.getAge() < min) {
+			if (record.getAge() < min) {
 				min = record.getAge();
 			}
-			if(record.getAge() > max) {
+			if (record.getAge() > max) {
 				max = record.getAge();
 			}
 		}
-		System.out.println(firstRec.getName() + " born in " + firstRec.getState() + " is most likely around " + min + " to " + max + " years old.");
+		System.out.println(firstRec.getName() + " born in " + firstRec.getState() + " is most likely around " + min
+				+ " to " + max + " years old.");
 	}
 
 	public static void main(String[] args) {
@@ -147,8 +168,8 @@ public class AgePrediction {
 			System.out.println("Invalid input. Usage... [TODO enter usage] ");
 			System.exit(1);
 		}
-		Path dataPath = Path.of(args[0]);
-		AgePrediction agePrediction = new AgePrediction(dataPath);
+		Path configFile = Path.of(args[0]);
+		AgePrediction agePrediction = new AgePrediction(configFile);
 		agePrediction.start();
 	}
 

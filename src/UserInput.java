@@ -27,11 +27,14 @@ public class UserInput {
 		String namePrompt = "Name of the person (or EXIT to quit): ";
 		System.out.println(namePrompt);
 		String name = scanner.nextLine();
+
+		// Continuously loop until name is not blank
 		while (name.isBlank()) {
 			System.out.println(namePrompt);
 			name = scanner.nextLine();
 		}
 		this.name = name.trim();
+
 		// typing "exit" exits the program
 		if (this.name.equalsIgnoreCase("exit")) {
 			System.exit(0);
@@ -43,7 +46,7 @@ public class UserInput {
 		System.out.println(genderPrompt);
 		String gender = scanner.nextLine();
 		while (gender.isBlank() || !isValidGender(gender)) {
-			System.out.println(genderPrompt);
+			System.out.println("Invalid gender. Try again.\n" + genderPrompt);
 			gender = scanner.nextLine();
 		}
 		this.gender = gender.trim();
@@ -54,7 +57,7 @@ public class UserInput {
 		System.out.println(statePrompt);
 		String state = scanner.nextLine();
 		while (state.isBlank() || !isValidStateCode(state)) {
-			System.out.println(statePrompt);
+			System.out.println("Invalid state code. Try again.\n" + statePrompt);
 			state = scanner.nextLine();
 		}
 		this.state = state.trim();
