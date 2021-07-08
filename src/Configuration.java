@@ -4,8 +4,8 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 /**
- * Class to keep track of values in configuration file that is given
- * as first argument.
+ * Class to keep track of values in configuration file that is given as first
+ * argument.
  */
 public class Configuration {
 

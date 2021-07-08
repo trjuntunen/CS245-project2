@@ -2,7 +2,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
-import java.util.ArrayList;
 
 /*
  * TODO:
@@ -75,8 +74,8 @@ public class AgePrediction {
 						int nameCount = Integer.parseInt(values[4]);
 						// Create new record and add to list
 						NameRecord record = new NameRecord(name, gender, state, year, nameCount);
+						// addRecords() -> if(ll) { add the ll way } else { add the arraylist way }
 						records.add(record);
-
 					}
 				}
 				br.close();
@@ -109,7 +108,7 @@ public class AgePrediction {
 					}
 				}
 			}
-			// Find all records that match maxNameCount and add to results
+			// Find all matching records that match maxNameCount and add to results.
 			for (int i = 0; i < recordsMatchingInput.size(); i++) {
 				NameRecord record = recordsMatchingInput.get(i);
 				if (record.getNameCount() == maxNameCount) {
@@ -144,26 +143,34 @@ public class AgePrediction {
 	/**
 	 * If the results size is more than 1, print an age range
 	 */
-	private void printAgeRange(ArrayList<NameRecord> records) {
-		// Use the first rec since they all have equal data members
-		NameRecord firstRec = records.get(0);
-		int max = firstRec.getAge();
-		int min = firstRec.getAge();
-		for (int i = 0; i < records.size(); i++) {
-			NameRecord record = records.get(i);
-			if (record.getAge() < min) {
-				min = record.getAge();
-			}
-			if (record.getAge() > max) {
-				max = record.getAge();
-			}
+	private void printAgeRange(ArrayList<NameRecord> records) throws Exception {
+		if (records.size() <= 1) {
+			throw new Exception("Age range must have more than 1 record.");
 		}
-		System.out.println(firstRec.getName() + " born in " + firstRec.getState() + " is most likely around " + min
-				+ " to " + max + " years old.");
+		try {
+			// Use the first record since they all have equal data members
+			NameRecord firstRec = records.get(0);
+			int max = firstRec.getAge();
+			int min = firstRec.getAge();
+			for (int i = 0; i < records.size(); i++) {
+				NameRecord record = records.get(i);
+				if (record.getAge() < min) {
+					min = record.getAge();
+				}
+				if (record.getAge() > max) {
+					max = record.getAge();
+				}
+			}
+			System.out.println(firstRec.getName() + " born in " + firstRec.getState() + " is most likely around " + min
+					+ " to " + max + " years old.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public static void main(String[] args) {
-		/* Validate input args */
+		/* Validate input arguments */
 		if (args.length != 1) {
 			System.out.println("Invalid input. Usage... [TODO enter usage] ");
 			System.exit(1);
