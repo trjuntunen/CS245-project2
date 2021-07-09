@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 public class AgePrediction {
 
 	private ArrayList<NameRecord> records;
-	private Configuration config;
+	private final Configuration config;
 
 	public AgePrediction(Path configFile) {
 		records = new ArrayList<>();
