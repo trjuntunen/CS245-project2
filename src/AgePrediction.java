@@ -13,12 +13,16 @@ import java.util.stream.Stream;
  */
 public class AgePrediction {
 
-	private ArrayList<NameRecord> records;
+	private List<NameRecord> records;
 	private final Configuration config;
 
 	public AgePrediction(Path configFile) {
-		records = new ArrayList<>();
 		config = new Configuration(configFile);
+		if(config.getListType().equalsIgnoreCase("linkedlist")) {
+			records = new LinkedList<>();
+		} else {
+			records = new ArrayList<>();
+		}
 	}
 
 	/**
@@ -35,8 +39,7 @@ public class AgePrediction {
 			input.askUserQuestions();
 
 			// Find the most likely person based on the user inputs
-			ArrayList<NameRecord> results = findResults(input);
-
+			List<NameRecord> results = findResults(input);
 			printResults(results);
 		}
 	}
@@ -52,6 +55,7 @@ public class AgePrediction {
 			System.out.println("Error: Unable to access the data files.");
 			System.exit(1);
 		}
+
 	}
 
 	/**
@@ -74,8 +78,9 @@ public class AgePrediction {
 						int nameCount = Integer.parseInt(values[4]);
 						// Create new record and add to list
 						NameRecord record = new NameRecord(name, gender, state, year, nameCount);
-						// addRecords() -> if(ll) { add the ll way } else { add the arraylist way }
-						records.add(record);
+						/* Add at beginning because order doesn't matter, and
+						adding at end of LinkedList is very slow, and fast at beginning */
+						records.add(0, record);
 					}
 				}
 				br.close();
@@ -88,7 +93,10 @@ public class AgePrediction {
 	/**
 	 * Finds the results of the most likely name given the user input
 	 */
-	private ArrayList<NameRecord> findResults(UserInput input) {
+	private List<NameRecord> findResults(UserInput input) {
+		if(config.getListType().equalsIgnoreCase("linkedlist")) {
+			return findResultsLinkedList(input);
+		}
 		ArrayList<NameRecord> results = new ArrayList<>();
 		try {
 			ArrayList<NameRecord> recordsMatchingInput = new ArrayList<>();
@@ -121,11 +129,39 @@ public class AgePrediction {
 		return results;
 	}
 
+	private List<NameRecord> findResultsLinkedList(UserInput input) {
+		LinkedList<NameRecord> results = new LinkedList<>();
+		LinkedList<NameRecord> recordsMatchingInput = new LinkedList<>();
+		LinkedList<NameRecord> temp = (LinkedList<NameRecord>) records;
+		Node<NameRecord> tempHead = temp.getHead();
+		int maxNameCount = 0;
+		for (int i = 0; i < temp.size(); i++) {
+			if (tempHead.data.getName().equalsIgnoreCase(input.getName())
+					&& tempHead.data.getGender().equalsIgnoreCase(input.getGender())
+					&& tempHead.data.getState().equalsIgnoreCase(input.getState())) {
+				recordsMatchingInput.add(tempHead.data);
+
+				if (tempHead.data.getNameCount() > maxNameCount) {
+					maxNameCount = tempHead.data.getNameCount();
+				}
+			}
+			tempHead = tempHead.next;
+		}
+		Node<NameRecord> matchHead = recordsMatchingInput.getHead();
+		for(int i = 0; i < recordsMatchingInput.size(); i++) {
+			if(matchHead.data.getNameCount() == maxNameCount) {
+				results.add(matchHead.data);
+			}
+			matchHead = matchHead.next;
+		}
+		return results;
+	}
+
 	/**
 	 * Depending on size of results, print the results or display "no match"
 	 * message.
 	 */
-	public void printResults(ArrayList<NameRecord> results) {
+	public void printResults(List<NameRecord> results) {
 		try {
 			if (results.size() <= 0) {
 				System.out.println("No person found matching that name");
@@ -143,7 +179,7 @@ public class AgePrediction {
 	/**
 	 * If the results size is more than 1, print an age range
 	 */
-	private void printAgeRange(ArrayList<NameRecord> records) throws Exception {
+	private void printAgeRange(List<NameRecord> records) throws Exception {
 		if (records.size() <= 1) {
 			throw new Exception("Age range must have more than 1 record.");
 		}

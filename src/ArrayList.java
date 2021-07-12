@@ -17,7 +17,7 @@ public class ArrayList<T> implements List<T> {
 	}
 
 	@Override
-	public void add(T item) throws Exception {
+	public void add(T item) {
 		if (size == arr.length) {
 			growArray();
 		}
@@ -25,7 +25,7 @@ public class ArrayList<T> implements List<T> {
 	}
 
 	@Override
-	public void add(int pos, T item) throws Exception {
+	public void add(int pos, T item) {
 		if (size == arr.length) {
 			growArray();
 		}
@@ -45,6 +45,7 @@ public class ArrayList<T> implements List<T> {
 
 	@Override
 	public T remove(int pos) throws Exception {
+		// TODO
 		return null;
 	}
 
