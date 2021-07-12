@@ -20,7 +20,9 @@ public class AgePrediction {
 		config = new Configuration(configFile);
 		if(config.getListType().equalsIgnoreCase("linkedlist")) {
 			records = new LinkedList<>();
+			System.out.println("Using linked list...");
 		} else {
+			System.out.println("Using array list...");
 			records = new ArrayList<>();
 		}
 	}
@@ -78,9 +80,11 @@ public class AgePrediction {
 						int nameCount = Integer.parseInt(values[4]);
 						// Create new record and add to list
 						NameRecord record = new NameRecord(name, gender, state, year, nameCount);
-						/* Add at beginning because order doesn't matter, and
-						adding at end of LinkedList is very slow, and fast at beginning */
-						records.add(0, record);
+						if(config.getListType().equalsIgnoreCase("linkedlist")) {
+							records.add(0, record);
+						} else {
+							records.add(record);
+						}
 					}
 				}
 				br.close();
