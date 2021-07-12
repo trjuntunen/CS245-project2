@@ -31,12 +31,12 @@ public class Configuration {
 		}
 	}
 
-	public String getListType() {
-		return listType;
-	}
-
 	public Path getDirectory() {
 		return directory;
+	}
+
+	public boolean isUsingLinkedList() {
+		return listType.equalsIgnoreCase("linkedlist");
 	}
 
 }
