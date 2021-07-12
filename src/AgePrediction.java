@@ -18,11 +18,13 @@ public class AgePrediction {
 
 	public AgePrediction(Path configFile) {
 		config = new Configuration(configFile);
+		
+		// Instantiate different type of list for 'records' depending on configuration file
 		if(config.getListType().equalsIgnoreCase("linkedlist")) {
 			records = new LinkedList<>();
-			System.out.println("Using linked list...");
+			System.out.println("Using linked list..."); //delete
 		} else {
-			System.out.println("Using array list...");
+			System.out.println("Using array list..."); //delete
 			records = new ArrayList<>();
 		}
 	}
@@ -42,6 +44,7 @@ public class AgePrediction {
 
 			// Find the most likely person based on the user inputs
 			List<NameRecord> results = findResults(input);
+			
 			printResults(results);
 		}
 	}
@@ -80,6 +83,9 @@ public class AgePrediction {
 						int nameCount = Integer.parseInt(values[4]);
 						// Create new record and add to list
 						NameRecord record = new NameRecord(name, gender, state, year, nameCount);
+						
+						 /* Add at beginning for LinkedList and end for ArrayList for
+						  * constant speed */
 						if(config.getListType().equalsIgnoreCase("linkedlist")) {
 							records.add(0, record);
 						} else {
@@ -93,73 +99,138 @@ public class AgePrediction {
 			}
 		}
 	}
+	
+	public List<NameRecord> findResults(UserInput input) {
+		List<NameRecord> results;
+		List<NameRecord> recordsMatchingInput;
+		int maxNameCount = 0;
+		
+		if(config.getListType().equalsIgnoreCase("linkedlist")) {
+			results = new LinkedList<>();
+			recordsMatchingInput = new LinkedList<>();
+			LinkedList<NameRecord> temp = (LinkedList<NameRecord>) records;
+			Node<NameRecord> tempHead = temp.getHead();
+			for (int i = 0; i < temp.size(); i++) {
+				if(recordMatchesInput(tempHead.data, input)) {
+					recordsMatchingInput.add(tempHead.data);
+					
+					// Check for name with highest count
+					if (tempHead.data.getNameCount() > maxNameCount) {
+						maxNameCount = tempHead.data.getNameCount();
+					}
+					
+				}
+				tempHead = tempHead.next;
+			}
+			Node<NameRecord> matchHead = ((LinkedList<NameRecord>) recordsMatchingInput).getHead();
+			for(int i = 0; i < recordsMatchingInput.size(); i++) {
+				if(matchHead.data.getNameCount() == maxNameCount) {
+					results.add(matchHead.data);
+				}
+				matchHead = matchHead.next;
+			}
+		} else {
+			results = new ArrayList<>();
+			recordsMatchingInput = new ArrayList<>();
+			try {
+				for (int i = 0; i < records.size(); i++) {
+					NameRecord record = records.get(i);
+					if(recordMatchesInput(record, input)) {
+						recordsMatchingInput.add(record);
+						
+						// Check for name with highest count
+						if (record.getNameCount() > maxNameCount) {
+							maxNameCount = record.getNameCount();
+						}
+						
+					}
+				}
+				for (int i = 0; i < recordsMatchingInput.size(); i++) {
+					NameRecord record = recordsMatchingInput.get(i);
+					if (record.getNameCount() == maxNameCount) {
+						results.add(record);
+					}
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+		return results;
+	}
+	
+	private boolean recordMatchesInput(NameRecord record, UserInput input) {
+		return record.getName().equalsIgnoreCase(input.getName())
+				&& record.getGender().equalsIgnoreCase(input.getGender())
+				&& record.getState().equalsIgnoreCase(input.getState());
+	}
 
 	/**
 	 * Finds the results of the most likely name given the user input
 	 */
-	private List<NameRecord> findResults(UserInput input) {
-		if(config.getListType().equalsIgnoreCase("linkedlist")) {
-			return findResultsLinkedList(input);
-		}
-		ArrayList<NameRecord> results = new ArrayList<>();
-		try {
-			ArrayList<NameRecord> recordsMatchingInput = new ArrayList<>();
-			int maxNameCount = 0;
-			for (int i = 0; i < records.size(); i++) {
-				NameRecord record = records.get(i);
-				// Check if record matches all the user inputs
-				if (record.getName().equalsIgnoreCase(input.getName())
-						&& record.getGender().equalsIgnoreCase(input.getGender())
-						&& record.getState().equalsIgnoreCase(input.getState())) {
-
-					// Add to matching names list
-					recordsMatchingInput.add(record);
-					// Find the max name count out of all the matching records
-					if (record.getNameCount() > maxNameCount) {
-						maxNameCount = record.getNameCount();
-					}
-				}
-			}
-			// Find all matching records that match maxNameCount and add to results.
-			for (int i = 0; i < recordsMatchingInput.size(); i++) {
-				NameRecord record = recordsMatchingInput.get(i);
-				if (record.getNameCount() == maxNameCount) {
-					results.add(record);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return results;
-	}
-
-	private List<NameRecord> findResultsLinkedList(UserInput input) {
-		LinkedList<NameRecord> results = new LinkedList<>();
-		LinkedList<NameRecord> recordsMatchingInput = new LinkedList<>();
-		LinkedList<NameRecord> temp = (LinkedList<NameRecord>) records;
-		Node<NameRecord> tempHead = temp.getHead();
-		int maxNameCount = 0;
-		for (int i = 0; i < temp.size(); i++) {
-			if (tempHead.data.getName().equalsIgnoreCase(input.getName())
-					&& tempHead.data.getGender().equalsIgnoreCase(input.getGender())
-					&& tempHead.data.getState().equalsIgnoreCase(input.getState())) {
-				recordsMatchingInput.add(tempHead.data);
-
-				if (tempHead.data.getNameCount() > maxNameCount) {
-					maxNameCount = tempHead.data.getNameCount();
-				}
-			}
-			tempHead = tempHead.next;
-		}
-		Node<NameRecord> matchHead = recordsMatchingInput.getHead();
-		for(int i = 0; i < recordsMatchingInput.size(); i++) {
-			if(matchHead.data.getNameCount() == maxNameCount) {
-				results.add(matchHead.data);
-			}
-			matchHead = matchHead.next;
-		}
-		return results;
-	}
+//	private List<NameRecord> findResults(UserInput input) {
+//		if(config.getListType().equalsIgnoreCase("linkedlist")) {
+//			return findResultsLinkedList(input);
+//		}
+//		ArrayList<NameRecord> results = new ArrayList<>();
+//		try {
+//			ArrayList<NameRecord> recordsMatchingInput = new ArrayList<>();
+//			int maxNameCount = 0;
+//			for (int i = 0; i < records.size(); i++) {
+//				NameRecord record = records.get(i);
+//				// Check if record matches all the user inputs
+//				if (record.getName().equalsIgnoreCase(input.getName())
+//						&& record.getGender().equalsIgnoreCase(input.getGender())
+//						&& record.getState().equalsIgnoreCase(input.getState())) {
+//
+//					// Add to matching names list
+//					recordsMatchingInput.add(record);
+//					// Find the max name count out of all the matching records
+//					if (record.getNameCount() > maxNameCount) {
+//						maxNameCount = record.getNameCount();
+//					}
+//				}
+//			}
+//			// Find all matching records that match maxNameCount and add to results.
+//			for (int i = 0; i < recordsMatchingInput.size(); i++) {
+//				NameRecord record = recordsMatchingInput.get(i);
+//				if (record.getNameCount() == maxNameCount) {
+//					results.add(record);
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return results;
+//	}
+//
+//	private List<NameRecord> findResultsLinkedList(UserInput input) {
+//		LinkedList<NameRecord> results = new LinkedList<>();
+//		LinkedList<NameRecord> recordsMatchingInput = new LinkedList<>();
+//		LinkedList<NameRecord> temp = (LinkedList<NameRecord>) records;
+//		Node<NameRecord> tempHead = temp.getHead();
+//		int maxNameCount = 0;
+//		for (int i = 0; i < temp.size(); i++) {
+//			if (tempHead.data.getName().equalsIgnoreCase(input.getName())
+//					&& tempHead.data.getGender().equalsIgnoreCase(input.getGender())
+//					&& tempHead.data.getState().equalsIgnoreCase(input.getState())) {
+//				recordsMatchingInput.add(tempHead.data);
+//
+//				if (tempHead.data.getNameCount() > maxNameCount) {
+//					maxNameCount = tempHead.data.getNameCount();
+//				}
+//			}
+//			tempHead = tempHead.next;
+//		}
+//		Node<NameRecord> matchHead = recordsMatchingInput.getHead();
+//		for(int i = 0; i < recordsMatchingInput.size(); i++) {
+//			if(matchHead.data.getNameCount() == maxNameCount) {
+//				results.add(matchHead.data);
+//			}
+//			matchHead = matchHead.next;
+//		}
+//		return results;
+//	}
 
 	/**
 	 * Depending on size of results, print the results or display "no match"
