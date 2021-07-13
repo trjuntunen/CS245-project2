@@ -1,5 +1,9 @@
 import java.util.Scanner;
 
+/**
+ * Class to keep track of the user inputs for each round
+ * of questions
+ */
 public class UserInput {
 
 	private String name;

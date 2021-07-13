@@ -160,10 +160,16 @@ public class AgePrediction {
         return results;
     }
 
+    /**
+     * Find the most likely age given user inputs
+     */
     public List<NameRecord> findResults(UserInput input) {
         return config.isUsingLinkedList() ? findResultsLinkedList(input) : findResultsArrayList(input);
     }
 
+    /**
+     * Checks if the given record matches all of the user inputs
+     */
     private boolean recordMatchesInput(NameRecord record, UserInput input) {
         return record.getName().equalsIgnoreCase(input.getName())
                 && record.getGender().equalsIgnoreCase(input.getGender())
