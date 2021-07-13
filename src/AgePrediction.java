@@ -78,7 +78,7 @@ public class AgePrediction {
                         int nameCount = Integer.parseInt(values[4]);
                         // Create new record and add to list
                         NameRecord record = new NameRecord(name, gender, state, year, nameCount);
-                        // Add at beginning for LinkedList and end for ArrayList
+                        // Order doesn't matter so add at beginning for LinkedList and end for ArrayList
                         if (config.isUsingLinkedList()) {
                             records.add(0, record);
                         } else {
@@ -101,7 +101,7 @@ public class AgePrediction {
         List<NameRecord> results = new LinkedList<>();
         LinkedList<NameRecord> recordsMatchingInput = new LinkedList<>();
         int maxNameCount = 0;
-        // Cast records to LL and get head Node
+        // Cast records to a LinkedList and get the head Node
         Node<NameRecord> tempHead = ((LinkedList<NameRecord>) records).getHead();
         // Loop through all records to find records that match all user inputs
         for (int i = 0; i < records.size(); i++) {
@@ -111,7 +111,7 @@ public class AgePrediction {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                // Check for name with highest count
+                // Check what the highest name count is among names that match user input
                 if (tempHead.data.getNameCount() > maxNameCount) {
                     maxNameCount = tempHead.data.getNameCount();
                 }
@@ -142,12 +142,13 @@ public class AgePrediction {
                 NameRecord record = records.get(i);
                 if (recordMatchesInput(record, input)) {
                     recordsMatchingInput.add(record);
-                    // Check for name with highest count
+                    // Check for highest name count
                     if (record.getNameCount() > maxNameCount) {
                         maxNameCount = record.getNameCount();
                     }
                 }
             }
+            // Go through each matching record and add to results if matches maxNameCount
             for (int i = 0; i < recordsMatchingInput.size(); i++) {
                 NameRecord record = recordsMatchingInput.get(i);
                 if (record.getNameCount() == maxNameCount) {
@@ -227,7 +228,7 @@ public class AgePrediction {
     public static void main(String[] args) {
         /* Validate input arguments */
         if (args.length != 1) {
-            System.out.println("Invalid input. Usage... [TODO enter usage] ");
+            System.out.println("Invalid arguments. Must provide configuration file.");
             System.exit(1);
         }
         Path configFile = Path.of(args[0]);
