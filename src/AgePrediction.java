@@ -4,10 +4,8 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 /*
- * TODO:
- * implement own linkedlist
- *
- * [Description]
+ * Program that predicts the most likely age
+ * given inputs Name, Gender, and state
  *
  * Author: Teddy Juntunen
  */
@@ -22,9 +20,7 @@ public class AgePrediction {
         // Instantiate different type of list for 'records' depending on configuration file
         if (config.isUsingLinkedList()) {
             records = new LinkedList<>();
-            System.out.println("Using linked list..."); //delete
         } else {
-            System.out.println("Using array list..."); //delete
             records = new ArrayList<>();
         }
     }
@@ -97,26 +93,32 @@ public class AgePrediction {
         }
     }
 
+    /**
+     * Finds the result of the most likely age given user inputs using
+     * Linked Lists
+     */
     private List<NameRecord> findResultsLinkedList(UserInput input) {
         List<NameRecord> results = new LinkedList<>();
         LinkedList<NameRecord> recordsMatchingInput = new LinkedList<>();
         int maxNameCount = 0;
         // Cast records to LL and get head Node
         Node<NameRecord> tempHead = ((LinkedList<NameRecord>) records).getHead();
+        // Loop through all records to find records that match all user inputs
         for (int i = 0; i < records.size(); i++) {
             if (recordMatchesInput(tempHead.data, input)) {
-				try {
-					recordsMatchingInput.add(0, tempHead.data);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				// Check for name with highest count
+                try {
+                    recordsMatchingInput.add(0, tempHead.data);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // Check for name with highest count
                 if (tempHead.data.getNameCount() > maxNameCount) {
                     maxNameCount = tempHead.data.getNameCount();
                 }
             }
             tempHead = tempHead.next;
         }
+        // Loop through records that match user input to see which ones match maxNameCount
         Node<NameRecord> head = recordsMatchingInput.getHead();
         for (int i = 0; i < recordsMatchingInput.size(); i++) {
             if (head.data.getNameCount() == maxNameCount) {
@@ -127,6 +129,10 @@ public class AgePrediction {
         return results;
     }
 
+    /**
+     * Finds the result of the most likely age given user inputs using
+     * Arraylists
+     */
     private List<NameRecord> findResultsArrayList(UserInput input) {
         List<NameRecord> results = new LinkedList<>();
         ArrayList<NameRecord> recordsMatchingInput = new ArrayList<>();

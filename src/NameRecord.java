@@ -1,6 +1,6 @@
 import java.util.Calendar;
 
-public class NameRecord implements Comparable<NameRecord> {
+public class NameRecord {
 
 	private final String name;
 	private final String gender;
@@ -48,8 +48,4 @@ public class NameRecord implements Comparable<NameRecord> {
 		return name + " born in " + state + " is most likely around " + getAge() + " years" + " old.";
 	}
 
-	@Override
-	public int compareTo(NameRecord other) {
-		return this.getNameCount() - other.getNameCount();
-	}
 }
